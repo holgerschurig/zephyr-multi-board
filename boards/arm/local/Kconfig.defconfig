@@ -1,0 +1,11 @@
+# Locally defined board
+
+# Copyright (c) 2024 Holger Schurig
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_LOCAL
+
+config BOARD
+    default "local"
+
+endif

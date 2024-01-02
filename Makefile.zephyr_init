@@ -1,0 +1,191 @@
+# -*- mode: makefile-gmake -*-
+
+# This code is if you use "make -f Makefile.zephyr_init" (which you shouldn't really)
+ifeq ($(PWD),"")
+PWD := $(shell pwd)
+endif
+ifeq ($(UID),"")
+UID := $(shell id -u)
+endif
+
+.PHONY:: all
+all::
+
+
+
+#############################################################################
+#
+# Install needed debian packages (see https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
+#
+
+.PHONY:: init
+init:: .west/stamp.debs
+.PHONY:: help
+help::
+	@echo "init                  do all of these steps:"
+
+.PHONY:: debs
+debs .west/stamp.debs:
+ifeq ($(UID),0)
+	apt install -y --no-install-recommends \
+		build-essential \
+		ccache \
+		cmake \
+		device-tree-compiler \
+		dfu-util \
+		doxygen \
+		file \
+		g++-multilib \
+		gcc \
+		gcc-arm-none-eabi \
+		gcc-multilib \
+		gdb-multiarch \
+		git \
+		gperf \
+		graphviz \
+		libmagic1 \
+		libnewlib-arm-none-eabi \
+		libsdl2-dev \
+		make \
+		ninja-build \
+		openocd \
+		plantuml \
+		python3-cbor \
+		python3-click \
+		python3-cryptography \
+		python3-dev \
+		python3-intelhex \
+		python3-pip \
+		python3-setuptools \
+		python3-tk \
+		python3-venv \
+		python3-wheel \
+		quilt \
+		wget \
+		xz-utils \
+		zip
+else
+	sudo $(MAKE) --no-print-directory debs
+	mkdir -p .west
+	touch .west/stamp.debs
+endif
+
+help::
+	@echo "   debs               only install debian packages"
+
+
+
+#############################################################################
+#
+# Check if we have a Python3 virtual environment
+
+.PHONY:: venv
+init venv:: .west/stamp.debs
+ifeq ("$(wildcard .venv/bin/activate)","")
+	python3 -m venv $(PWD)/.venv
+endif
+ifeq ("$(VIRTUAL_ENV)", "")
+	@echo ""
+	@echo "... ideally by sourcing all environments: source .env"
+	@echo ""
+	@exit 1
+endif
+
+help::
+	@echo "   venv               create and check Python3 virtual environment"
+
+
+
+#############################################################################
+#
+# Install and initiate the "west" tool
+
+.PHONY:: west
+init:: .west/config
+west .west/config:
+	@type west >/dev/null || pip3 install west pyelftools
+	mkdir -p .west
+	/bin/echo -e "[manifest]\npath = zephyr\nfile = west.yml\n[zephyr]\nbase = zephyr" >.west/config
+
+help::
+	@echo "   west               install and configure the 'west' tool"
+
+.PHONY:: update
+update:: .west/config
+	pip3 install west --upgrade
+
+
+
+#############################################################################
+#
+# Clone a suiting version of Zepyr
+
+# Uncomment this if you want a specific Zephyr version. To get the version, use
+# "git describe --tags" or "git rev-parse HEAD" or similar.
+#ZEPHYR_VERSION=zephyr-v3.5.0-3531-g6564e8b756
+
+.PHONY:: zephyr
+init:: zephyr/.git/HEAD
+zephyr zephyr/.git/HEAD:
+	git clone https://github.com/zephyrproject-rtos/zephyr.git
+ifneq ("$(ZEPHYR_VERSION)", "")
+	cd zephyr; git checkout -b my $(ZEPHYR_VERSION)
+endif
+ifneq ("$(wildcard patches-zepyhr/series)","")
+	ln -s ../patches-zephyr zephyr/patches
+	cd zephyr; quilt push -a
+endif
+
+help::
+	@echo "   zephyr             clone Zephyr"
+
+# In those cases where we develop against "tip of source" from Zephyr, this make
+# target updates Zephyr to the newest commit. Use this to stay ahead!
+ifeq ("$(ZEPHYR_VERSION)", "")
+.PHONY:: update_zephyr
+update_zephyr:: zephyr/.git/HEAD
+ifneq ("$(wildcard patches-zepyhr/series)","")
+	cd zephyr; quilt pop -a
+endif
+	cd zephyr; git pull
+ifneq ("$(wildcard patches-zepyhr/series)","")
+	cd zephyr; quilt push -a
+endif
+endif
+
+
+
+#############################################################################
+#
+# Get Zephyr modules (e.g. STM32 HAL etc)
+
+.PHONY:: modules
+help::
+	@echo "   modules            install Zeyphr modules (e.g. ST and STM32 HAL, CMSIS ...)"
+
+init:: modules/hal/stm32/.git/HEAD
+.PHONY:: module_stm32
+update modules module_stm32 modules/hal/stm32/.git/HEAD:: .west/config
+	mkdir -p modules
+	west update hal_stm32
+	touch --no-create modules/hal/stm32/.git/HEAD
+help::
+	@echo "     module_stm32     update only STM32 HAL"
+
+init:: modules/hal/st/.git/HEAD
+.PHONY:: module_st
+update modules module_st modules/hal/st/.git/HEAD:: .west/config
+	mkdir -p modules
+	west update hal_st
+	touch --no-create modules/hal/st/.git/HEAD
+help::
+	@echo "     module_st        update only ST HAL"
+
+init:: modules/hal/cmsis/.git/HEAD
+.PHONY:: module_cmsis
+update modules module_cmsis modules/hal/cmsis/.git/HEAD:: .west/config
+	mkdir -p modules
+	west update cmsis
+	touch --no-create modules/hal/cmsis/.git/HEAD
+help::
+	@echo "     module_cmsis     update only CMSIS"
