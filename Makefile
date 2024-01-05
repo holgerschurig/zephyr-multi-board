@@ -96,8 +96,6 @@ nucleo: .west/config
 		-b nucleo_f303re \
 		-o "build.ninja" \
 		-- \
-		-Wno-dev \
-		-Wno-deprecated \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 		-DOVERLAY_CONFIG="nucleo_f303re.conf"
 	west build

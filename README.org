@@ -441,8 +441,6 @@ west build \
 	-b nucleo_f303re \                           (ref:nucleo_f303re)
 	-o "build.ninja" \                           (ref:ninja)
 	-- \                                         (ref:cmake)
-	-Wno-dev \
-	-Wno-deprecated \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \         (ref:lsp)
 	-DOVERLAY_CONFIG="nucleo_f303re.conf"        (ref:overlay)
 -- west build: generating a build system
@@ -501,8 +499,6 @@ nucleo: .west/config
 		-b nucleo_f303re \
 		-o "build.ninja" \
 		-- \
-		-Wno-dev \
-		-Wno-deprecated \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 		-DOVERLAY_CONFIG="nucleo_f303re.conf"
 	west build
