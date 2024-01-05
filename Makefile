@@ -79,6 +79,7 @@ native: .west/config
 		-- \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 		-DOVERLAY_CONFIG="native_sim.conf"
+	$(MAKE) --no-print-directory fix_lsp_compilation_database
 	west build
 
 help help_boards::
@@ -98,6 +99,7 @@ nucleo: .west/config
 		-- \
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 		-DOVERLAY_CONFIG="nucleo_f303re.conf"
+	$(MAKE) --no-print-directory fix_lsp_compilation_database
 	west build
 
 help help_boards::
@@ -118,7 +120,25 @@ local: .west/config
 		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 		-DOVERLAY_CONFIG="boards/arm/local/local_defconfig" \
 		-DBOARD_ROOT=.
+	$(MAKE) --no-print-directory fix_lsp_compilation_database
 	west build
 
 help help_boards::
 	@echo "local                 configure and compile for locally defined board"
+
+
+
+
+#############################################################################
+
+# Remove some command-line options that clangd doesn't know. This removes some
+# "errors" in your LSP editing experience.
+.PHONY:: fix_lsp_compilation_database
+fix_lsp_compilation_database:
+	sed -i 's/--param=min-pagesize=0//g' build/compile_commands.json
+	sed -i 's/--specs=picolibc.specs//g' build/compile_commands.json
+	sed -i 's/-fno-defer-pop//g' build/compile_commands.json
+	sed -i 's/-fno-freestanding//g' build/compile_commands.json
+	sed -i 's/-fno-printf-return-value//g' build/compile_commands.json
+	sed -i 's/-fno-reorder-functions//g' build/compile_commands.json
+	sed -i 's/-mfp16-format=ieee//g' build/compile_commands.json

@@ -1,5 +1,6 @@
 /.venv
 /.west
+/.cache
 /build
 /modules
 /zephyr
