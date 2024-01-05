@@ -1,5 +1,9 @@
 # -*- mode: makefile-gmake -*-
 
+# Copyright (c) 2024 Holger Schurig
+# SPDX-License-Identifier: Apache-2.0
+
+
 # This code is if you use "make -f Makefile.zephyr_init" (which you shouldn't really)
 ifeq ($(PWD),"")
 PWD := $(shell pwd)

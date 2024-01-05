@@ -3,6 +3,9 @@
 #+MACRO: relref @@hugo:[@@ $1 @@hugo:]({{< relref "$2" >}})@@
 #+HUGO_BASE_DIR: ~/src/hpg/
 
+# Copyright (c) 2024 Holger Schurig
+# SPDX-License-Identifier: Apache-2.0
+
 This ORG file is "somewhat" readable on Github. But, if you want to have a better presentation of the
 articles therein, you should really visit it after Emacs, [[https://ox-hugo.scripter.co/][ox-hugo]] and [[https://gohugo.io/][Hugo]] processed it:
 

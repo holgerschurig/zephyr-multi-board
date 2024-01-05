@@ -1,3 +1,6 @@
+// Copyright (c) 2024 Holger Schurig
+// SPDX-License-Identifier: Apache-2.0
+
 #include <zephyr/shell/shell.h>
 
 static int cmd_local(const struct shell *shell, size_t argc, char **argv)
