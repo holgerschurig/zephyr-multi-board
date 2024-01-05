@@ -3,6 +3,13 @@
 #+MACRO: relref @@hugo:[@@ $1 @@hugo:]({{< relref "$2" >}})@@
 #+HUGO_BASE_DIR: ~/src/hpg/
 
+This ORG file is "somewhat" readable on Github. But, if you want to have a better presentation of the
+articles therein, you should really visit it after Emacs, [[https://ox-hugo.scripter.co/][ox-hugo]] and [[https://gohugo.io/][Hugo]] processed it:
+
+- [[https://holgerschurig.github.io/en/zephyr-reproducible-project-setup/][Zepyhr: reproducible project setup]]
+- [[https://holgerschurig.github.io/en/zephyr-multi-board/][Zepyhr: multi-board setup]]
+- [[https://holgerschurig.github.io/en/zephyr-fixing-lsp-issues/][Zephyr: fixing LSP issues]]
+
 * Zepyhr: reproducible project setup
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: en
