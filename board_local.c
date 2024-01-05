@@ -1,6 +1,6 @@
 #include <zephyr/shell/shell.h>
 
-static int cmd_bat(const struct shell *shell, size_t argc, char **argv)
+static int cmd_local(const struct shell *shell, size_t argc, char **argv)
 {
 	(void) argc;
 	(void) argv;
