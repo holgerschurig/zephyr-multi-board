@@ -4,7 +4,7 @@
 #+HUGO_BASE_DIR: ~/src/hpg/
 
 # Copyright (c) 2024 Holger Schurig
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: CC-BY-SA-4.0
 
 Github can render this .org document so-so, i.E. it's at least readable. But a
 better rendering can be found on my home page:
