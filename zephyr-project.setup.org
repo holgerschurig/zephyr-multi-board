@@ -6,6 +6,12 @@
 # Copyright (c) 2024 Holger Schurig
 # SPDX-License-Identifier: Apache-2.0
 
+Github can render this .org document so-so, i.E. it's at least readable. But a
+better rendering can be found on my home page:
+
+- [[https://holgerschurig.github.io/en/zephyr-reproducible-project-setup/][Zepyhr: reproducible project setup]]
+
+
 * Zepyhr: reproducible project setup
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: en
