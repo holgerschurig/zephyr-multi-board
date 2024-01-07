@@ -6,8 +6,8 @@
 # Copyright (c) 2024 Holger Schurig
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
-Github can render this .org document so-so, i.E. it's at least readable. But a
-better rendering can be found on my home page:
+GitHub can render this .org document only so-so. At least it's readable. But a
+better rendering may be found on your homepage.
 
 - [[https://holgerschurig.github.io/en/zephyr-multi-board/][Zepyhr: multi-board setup]]
 
@@ -28,35 +28,35 @@ This blog post shows how to setup a Zephyr project that you can use for several 
 
 ** Why multiple boards in one project?
 
-- you start with a development board (like STM Nucleo or Disco) while you wait
-  for the actual hardware prototype
-- you want to run (hardware-independent) [[https://docs.zephyrproject.org/latest/develop/test/ztest.html][unit-tests]], either on your desktop or
-  on a CI/CD server like Jenkings
-- you have to develop for many similar devices that only have slight differences
-  and don't want to have many almost-identical source trees
+- You start with a development board (such as STM Nucleo or Disco) while you
+  wait for the actual hardware prototype.
+- You want to run hardware-independent unit tests, either on your desktop or on
+  a CI/CD server like Jenkins.
+- You have to develop for many similar devices that only have slight
+  differences, and you don't want to have many almost-identical source trees.
 
 ** (Ab)use of Makefiles
 
-Most of the following is orchestrated mostly by a Makefile.
+The following is orchestrated mostly by a Makefile.
 
 Even when Zephyr itself uses CMake and Ninja, Makefiles are a nicer way to
 bundle lots of shell snippets into one Makefile. You can view this Makefile also
-as a collection of knowledge, or as a way to have things replicatable.
+as a collection of knowledge, or as a way to have things replicable.
 
 ** This blog post is based on ...
 
-This blog post depends on Macro test {{{relref(Zepyhr: reproducible project
+This post depends and improves on {{{relref(Zepyhr: reproducible project
 setup,zephyr-reproducible-project-setup)}}} and uses it's [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/Makefile.zephyr_init][Makefile.zephyr_init]].
 
 ** Board related
+
 *** Get list of defined board
 
-Now that you created the Zephyr development environment using {{{relref(Zepyhr:
-reproducible project setup,zephyr-reproducible-project-setup)}}}, added some
-sources and a "=CMakeLists.txt=" file you enter "=make=" to compile your
-project.
+If we just enter "=make=" to compile our sources, we instead see a list of of boards.
 
-But instead of compiling your source, you see a list of available boards:
+If we have one set of source files but several target boards, we need a way to
+configure for a specific board. So if there is no "=build/=" directory, we are
+asked to first configure for a specific board:
 
 #+begin_example
 :~/src/multi-board-zephyr$ make
@@ -73,16 +73,9 @@ local                 configure for locally defined board
 
 #+end_example
 
-The reason is that we don't yet know for which board you actually want to
-compile your sources.
-
-Basically, if no "=build/=" directory exists, you get this help text with all
-configured boards inside the Makefile.
-
 *** Configure and compile for one of the boards
 
-So instead, select board, and enter "=make nucleo=" instead. And now Zephyr
-configures itself and compiles:
+We select one of the boards, e.g. the provided STM32 Nucleo one:
 
 #+begin_example -r
 ~/src/multi-board-zephyr$ make nucleo
@@ -101,68 +94,37 @@ Loading Zephyr default modules (Zephyr base).
 
 There are some special things here at work:
 
-- in line [[(pristine)]] we order "=west=" to use a pristine environment whenever
+- In line [[(pristine)]], we order "=west=" to use a pristine environment whenever
   the configuration changes. So you can do "=make local=" and then "=make
-  nucleo=" and the "=build/=" directory will completely switch. While you can do
-  "=rm -rf build=" you don't need to, due to this "=--pristine=" command line
-  switch
-- in line [[(nucleo_f303re)]] we actually select the wanted boards. This one is
-  provided by Zephyr itself, you can find it in
-  https://github.com/zephyrproject-rtos/zephyr/tree/main/boards/arm/nucleo_f303re
-- line [[(ninja)]] tells Zephyr's CMake to use Ninja, which is faster compiling
-  compared to let CMake generate Makefiles.
-- the two dashes in line [[(cmake)]] tells "=west=" to pass over all the future command
-  line-options as-is to CMake.
-- line [[(lsp)]] tells CMake to generate a compilation database. Use this with an
-  LSP daemon like clangd or other tools that depend it. Many editors like Emacs,
-  Visual Studio etc offer special services if LSP is present.
-- line [[(overlay)]] tell the build system to configure itself according to this
-  config files (which has Linux KConfig / "=.config=" syntax. Note that only
-  board-specific configuration should be placed there. Anything that should be
-  used project-wide has a better place in "=prj.conf=".
+  nucleo=" and the "=build/=" directory will completely switch. There's no need
+  for you to manually remove it with "=rm -rf build=".
+  to.
+- In line [[(nucleo/f303re)]], we actually select the wanted board. This one is
+  provided by Zephyr itself, and you can find it in
+  <https://github.com/zephyrproject-rtos/zephyr/tree/main/boards/arm/nucleo/f303re>.
+- Line [[(ninja)]] tells Zephyr's CMake to use Ninja, which compiles as if we would
+  ask CMake to generate makefiles.
+- The two dashes in line [[(cmake)]] tell "=west=" to pass over all the future
+  command-line options as-is to CMake.
+- Line [[(lsp)]] tells CMake to generate a compilation database. Use this with an
+  LSP daemon like clangd or other tools that depend on it. Many editors like
+  Emacs, Visual Studio, etc., offer special services if LSP is present. See more on
+  LSP in the post {{{relref(Zepyhr: fixing LSP issues,zephyr-fixing-lsp-issues)}}}
+- Line [[(overlay)]] tells the build system to configure itself according to the
+  specified configuration file. They are in a Linux-style KConfig / ".config"
+  syntax. Note that only board-specific configurations should be placed there.
+  Anything that should be used project-wide has a better place in "prj.conf".
 
 If the configuration step succeed, this will also automatically compile your code.
 
-Here are the last few lines of the compilation process:
-
-#+begin_example
-Memory region         Used Size  Region Size  %age Used
-           FLASH:       39782 B       512 KB      7.59%
-             RAM:        9792 B        64 KB     14.94%
-             CCM:          0 GB        16 KB      0.00%
-        IDT_LIST:          0 GB         2 KB      0.00%
-Generating files from /home/holger/src/multi-board-zephyr/build/zephyr/zephyr.elf for board: nucleo_f303re
-[147/147] cd /home/holger/src/multi-board-zephyr/b...ger/src/multi-board-zephyr/build/zephyr/zephyr.el
-(.venv) holger@holger:~/src/multi-board-zephyr$ file build/zephyr/zephyr.bin
-build/zephyr/zephyr.bin: ARM Cortex-M firmware, initial SP at 0x20001fc0, reset at 0x08002f30, NMI at 0x08002bec, HardFault at 0x08002f1c, SVCall at 0x08003054, PendSV at 0x08002fec
-#+end_example
+For subsequent compilations, you just enter "=make=" alone. Another "=make
+nucleo=" would also re-configure the "=build/=" directory. That would take more
+time.
 
 *** How this is implemented
 
-The above "=make nucleo=" is implemented by this Makefile part:
-
-#+begin_example
-.PHONY:: nucleo
-nucleo: .west/config
-	west build \
-		--pristine \
-		-b nucleo_f303re \
-		-o "build.ninja" \
-		-- \
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-		-DOVERLAY_CONFIG="nucleo_f303re.conf"
-	west build
-
-help help_boards::
-	@echo "nucleo                compile for STM32 Nucleo"
-#+end_example
-
-Note the last two lines: we have a Makefile pseudo-target "=help_boards=" which
-can exist several times in the Makefile (because it uses "::" and not ":"). Each of our board
-configuration snippets contains such an entry.
-
-Now, if you simply run "=make=", then the pseudo-target "all" will be executed.
-And it looks like this:
+The differentiation between "=make=" doing just a re-compile or asking you to
+select a board is done like this:
 
 #+begin_example -r
 all::
@@ -198,15 +160,24 @@ The reason I made this a function is so that it is easy to call from several
 places. In this Makefile, not only "=make all=" calls it eventually, but also
 maybe "=make menuconfig=" or "=make xconfig=".
 
+Finally we have a multitude of "help_boards:" targets like this:
+
+#+begin_example
+help help_boards::
+	@echo "nucleo                configure and compile for STM32 Nucleo"
+#+end_example
+
+
 *** Configure and compile for simulated hardware
 
-Zephyr includes a "board" called [[https://docs.zephyrproject.org/latest/boards/posix/native_sim/doc/index.html][native_sim]]. Basically your sources are compiled
-for this target, but they run on your development computer (e.g. compiled to
-x86, not for ARM). The native simulator even allows you to similar some
-hardware, e.g. an AT24 EEPROM.
+Zephyr includes a board called [[https://docs.zephyrproject.org/latest/boards/posix/native_sim/doc/index.html][native_sim]]. Basically when you select this
+"board", your sources are compiled for your development compiter (in my case:
+Linux). So they aren't compiled for ARM or RISV-V, but for x86. The native
+simulator even allows you to similar some hardware, e.g. an AT24 EEPROM.
 
-However, what is most useful is that you can define unit-tests and run these unit-tests
-than on your develpment compiter --- or on a CI/CD server, like Jenkins.
+However, what is most useful is that you can define unit-tests and run these
+unit-tests than on your develpment compiter --- or on a CI/CD server, like
+Jenkins.
 
 Here is how you configure Zephyr for this:
 #+begin_example -r
@@ -229,7 +200,7 @@ Now, when we configure and compile, we now get a binary that we can run under
 Linux (or WSL, if you're on Windows):
 
 #+begin_example
-$ make native
+~/src/multi-board-zephyr$ make native
 west build \
 	--pristine \
 	-b native_sim \
@@ -283,9 +254,9 @@ converting the output into the TAP format.
 
 So far, we used boards already defined by the Zephyr source code. But perhaps
 you want to use Zephyr on one of your own boards, where you don't plan to
-publish it upstream? That's entirely possible, and the board called "local" of this project is exactly that: a board defined for Zephyr, but out-of-tree.
-
-The Makefile snippet for it sounds familiar ...
+publish it upstream? That's entirely possible, and the board called "local" in
+this project is exactly that: a board defined for Zephyr but out-of-tree. The
+Makefile snippet for it sounds familiar ...
 
 #+begin_example -r
 .PHONY:: local
@@ -301,12 +272,13 @@ local: .west/config
 	west build
 #+end_example
 
-... but there is some differences:
+... but there are some differences:
 
-- line [[(defconfig)]] gives a full path to the default config of the board
-- line [[(boardroot)]] specifies OUR project (not Zephyr) as the board root. So
-  Zephyr won't look into "=zephyr/boards/...=" but instead into "=boards/...="
-  when looking for boards.
+- Line [[(defconfig)]] gives the full path to the default configuration of the
+  board.
+- Line [[(boardroot)]] specifies our project (not Zephyr) as the board root, so
+  Zephyr won't look into "=zephyr/boards/" but instead into "=boards/" when
+  looking for boards.
 
 Now we need to have such a "=boards/arm/local/=" directory and populate it with some files:
 
@@ -333,16 +305,16 @@ target_sources_ifdef(CONFIG_BOARD_NATIVE_SIM app PRIVATE           (ref:src_nati
   board_native.c)
 #+end_example
 
-- any sources that must compile for every board is specified like in line
-  [[(src_main)]]. Note that the hanging indent is there as a hint that you can
-  specify multiple source files in one "=target_source=" declaration.
-- according to line [[(src_local)]] the file "=board_local.c=" will only be compiled
-  if your current board is the board named "local".
-- and you guessed it, line [[(src_native)]] makes sure that this source file is only
-  considered when compiling for the "native_sim" board. Here I'd put the
-  device-independent unit-tests, for example.
+- Any sources that must compile for every board are specified like in line
+  [[(src/main)]]. Note that the hanging indent is there as a hint that you can
+  specify multiple source files in one "=target\/source=" declaration.
+- According to line [[(src\/local)]], the file "=board\/local.c=" will only be
+  compiled if your current board is the board named "local".
+- And you guessed it; line [[(src\/native)]] ensures that this source file is only
+  considered when compiling for the "native\/sim" board. Here, I'd put the
+  device-independent unit tests, for example.
 
-You can use the CONFIG_ ... variables also direcly in the sources:
+You can use the CONFIG_ ... variables also direcly in your C sources:
 
 #+begin_example c
 #ifdef CONFIG_BOARD_LOCAL
@@ -356,7 +328,8 @@ You also learned about the various "=*.conf=" files like
 
 - board-specific [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/native_sim.conf][native_sim.conf]]
 - board-specific [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/nucleo_f303re.conf][nucleo_f303re.conf]]
-- board-specific ones like [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/boards/arm/local/Kconfig.board][boards/arm/local/Kconfig.board]], [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/boards/arm/local/Kconfig_defconfig][boards/arm/local/Kconfig_defconfig]] and [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/boards/arm/local/local_defconfig][boards/arm/local/local_defconfig]]
+- board-specific ones like [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/boards/arm/local/Kconfig.board][boards/arm/local/Kconfig.board]],
+  [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/boards/arm/local/Kconfig_defconfig][boards/arm/local/Kconfig_defconfig]] and [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/boards/arm/local/local_defconfig][boards/arm/local/local_defconfig]]
 - the project-wide [[https://github.com/holgerschurig/zephyr-multi-board/blob/main/prj.conf][prj.conf]] file
 
 But how to find out which "=CONFIG_*=" settings you can use?
@@ -366,15 +339,15 @@ Use either
 - "=make menuconfig=" or
 - "=make xconfig="
 
-When you make changes there and save, you can then just run "=make=" to compile
-your board with these settings. However, to make these changes permanent (and
-thus reproducible), you need to update on of the configuration files I listed
-above.
+When you make changes and save, you can then just run "=make=" to compile your
+board with these settings. However, to make these changes permanent (and
+reproducible), you need to update one of the configuration files listed above.
 
 ** Get help from make
 
-I already showed "=make help_boards=". The same method (multiple pseudo makefile
-targets emitting helpful text) is available to get an idea of what the Makefile can do for you:
+I already showed "=make help\/boards=". The same method (multiple pseudo
+makefile targets emitting helpful text) is available to get an idea of what the
+Makefile can do for you:
 
 #+begin_example
 ~/src/multi-board-zephyr$ make help

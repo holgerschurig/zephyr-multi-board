@@ -6,8 +6,8 @@
 # Copyright (c) 2024 Holger Schurig
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
-Github can render this .org document so-so, i.E. it's at least readable. But a
-better rendering can be found on my home page:
+GitHub can render this .org document only so-so. At least it's readable. But a
+better rendering may be found on your homepage.
 
 - [[https://holgerschurig.github.io/en/zephyr-reproducible-project-setup/][Zepyhr: reproducible project setup]]
 
@@ -21,24 +21,26 @@ better rendering can be found on my home page:
 :EXPORT_HUGO_CATEGORIES: embedded
 :END:
 
-This blog post shows you how to *reproducibly* setup a Zephyr project. It also gives
-you a few Makefile tricks and best practices.
+This blog post demonstrates how to set up a Zephyr project in a *reproducible*
+manner. Additionally, it provides some Makefile tricks and best practices for
+using this powerful tool effectively.
 
-While you can do this by hand, e.g. by following the [[https://docs.zephyrproject.org/latest/develop/getting_started/index.html][Getting Started Guide]], a
-reproducible & automatic setup still has benefits. For once, any change you do
-is automatically documented in GIT. And also it's much easier to move the
-project onto CI/CD servers or into Docker containers.
+While you can set up a Zephyr project manually, following the [[https://docs.zephyrproject.org/latest/develop/getting/started/index.html][Getting Started
+Guide]], a reproducible and automatic approach has several advantages. Firstly,
+any changes made to the project will be automatically documented in GIT.
+Furthermore, it is easier to move the project onto CI/CD servers or into Docker
+containers.
 
 #+hugo: more
 #+toc: headlines 2
 
 ** (Ab)use of Makefiles
 
-All of the following is orchestrated mostly by a Makefile.
-
-Even when Zephyr itself uses CMake and Ninja, Makefiles are a nicer way to
-bundle lots of shell snippets into one place. You can view this Makefile also
-as a collection of knowledge, or as a way to have things replicatable.
+The entire setup is primarily managed by a Makefile. Despite the fact that
+Zephyr utilizes CMake and Ninja, Makefiles offer a more convenient way to
+consolidate numerous shell commands into a single location. You can consider
+this Makefile as a repository of knowledge or as a mechanism for ensuring
+replicability.
 
 The full Makefile is accessible as
 https://github.com/holgerschurig/zephyr-multi-board/blob/main/Makefile.zephyr_init
@@ -99,26 +101,29 @@ else
 endif
 #+end_example
 
-Here we use a trick: the Makefile detects in line [[(isroot)]] the user ID of the current user. In line
-[[(checkroot)]] we when check if the Makefile is running as user or root. If it is running as root, we
-can use "=apt=" in line [[(apt)]] to install all the needed dependencies.
+In this section, we employ a trick using the Makefile to detect the user ID of
+the current user in line [[(isroot)]]. Line [[(checkroot)]] is used to verify if the
+Makefile is running as a user or root. If it's running as root, we can utilize
+"=apt=" in line [[(apt)]] to install all necessary dependencies.
 
-However, if we're a normal user, we use "=sudo=" at line [[(sudo)]] to become root
-and run the Makefile target "debs" again. The "=--no-print-directory=" command line argument
-just removes visual clutter.
+If we're non-root, we use "=sudo=" in line [[(sudo)]] to become root and execute the
+"debs" Makefile target again. The "=--no-print-directory=" command-line argument
+is employed to remove visual clutter from the output.
 
-Finally, as a normal user, we create a directory if it doesn't yet exist ("=-p")
-and put a stamp file into it. "=make init=" checks this stamp, if the stamp
-exists, it won't rerun this part. However, "=make debs=" doesn't check the
-stamp, it always runs "=apt=". Use this if for some reason you want to install
-additional debian packages in an already setup project.
+Lastly, as a normal user, we create the directory "=.west=" if it doesn't exist
+("=-p=") and place a stamp file inside it. The "=make init=" command checks the
+existence of the stamp, preventing unnecessary re-execution of this part if it
+already exists. In contrast, "=make debs=" does not check for the stamp and
+always runs "=apt=". This can be used if you want to install additional Debian
+packages in an existing project setup.
+
 
 *** Setting up a python virtual environment
 
-Zephyr needs a tool called "=west=" which is written in Python and get's installed
-via "=pip3=", together with several python modules. In order to have these modules
-not interfere with those installed by Debian (or Ubuntu), we need to create a virtual
-environent.
+Zephyr requires a tool named "=west=" that is written in Python and is installed
+using "=pip3=". Along with several Python modules. To prevent these modules from
+conflicting with those installed by Debian (or Ubuntu), we need to create a
+virtual environment.
 
 Execution: either "=make init=" or, as a single step, "=make debs=".
 
@@ -143,17 +148,19 @@ help::
 	@echo "   venv               create and check Python3 virtual environment"
 #+end_example
 
-In line [[(filexists)]] we check if the environment already exists (we could use Make's dependency
-checking, but it will not just look at the mere existence, but also on the timestamp, which here
-is undersirable).
+In line [[(filexists)]], we verify if the environment already exists. While Make's
+dependency checking can be used for this purpose, it would check not only for
+file existence, but also for the timestamp. In this case, this is undesirable.
 
-If it doesn't exists, we use the Python "=venv=" module in line [[(venv)]] to simply create one. Now
-we could source "=.venv/bin/activate=" to activate this... but unfortunately, this has to be done
-outside of Make. Also, we ask to source "=.env=" instead, so that we can also setup needed
-[[https://docs.zephyrproject.org/latest/develop/env_vars.html][Zephyr environment variables]].
+If the environment does not exist, we use the Python "=venv=" module in line
+[[(venv)]] to create one. While we could source "=.venv/bin/activate=" to activate
+this within Make, unfortunately, it has to be done outside of Make. Instead, we
+ask to source "=.env=" so that we can also set up the required Zephyr
+environment variables.
 
-Pro tip: on my development PCs, I have a shell function "=pro=" that changes into a project directory
-and sources "=.env=" automatically if it exist. It looks like this:
+Pro tip: On my development PCs, I have a shell function "=pro=" that
+automatically changes into a project directory and sources "=.env=" if it
+exists. It looks like this:
 
 #+begin_example -r shell
 pro ()
@@ -163,7 +170,8 @@ pro ()
 }
 #+end_example
 
-So now I can do "=pro cool-zephyr-project=" and my environment is automatically setup.
+So now I can do "=pro cool-zephyr-project=" and my environment is automatically
+setup.
 
 (This shell function assumes that you have your projects in your home directory
 below the "=d=" (like development) or "=src=" directories. Adjust as needed.)
@@ -193,13 +201,11 @@ Actually this does 3 steps:
 
 *** Install Zephyr
 
-Now we need the source of Zephyr. On some projects, you want the current development
-version of it, on some projects you want pin yourself to a specific version. You also
-might have local patches for Zephyr that you don't want to publish upstream and that
-you want to apply automatically. This step does all of this!
-
-BTW, because of these additional functions (specific version, patches) we intentionally
-don't use "=west init=".
+Now we require the source of Zephyr. On some projects, you may want to use the
+current development version, while on others, you may wish to pin yourself to a
+specific version. Additionally, you might have local patches for Zephyr that you
+don't want to publish upstream and that you want to apply automatically. This
+step accomplishes all of this!
 
 Execution: either “make init” or, as a single step, “make zephyr”.
 
@@ -221,29 +227,37 @@ ifneq ("$(wildcard patches-zepyhr/series)","")                 (ref:zephpatches)
 endif
 #+end_example
 
-The first step is a very normal "=git clone=". If you don't care about Zephyr's commit
-history (e.g. you don't want to run things like "=git log=" or "=git blame=" you can also
-add "--depth 1". That reduces the size of the cloned "=zephyr/=" directory.
+The first step is a typical "=git clone=". If you don't care about Zephyr's
+commit history (e.g., you don't want to run things like "=git log=" or "=git
+blame="), you can also add "=--depth 1=". This reduces the size of the cloned
+"=zephyr/=" directory.
 
-You can uncommend and modify ZEPHYR_VERSION in line [[(zephvers)]] to your liking.
+*Specific version*: you can uncommend and modify ZEPHYR_VERSION in line [[(zephvers)]] to your liking.
 This will pin Zephyr to the specified version. This is done by creating a branch "=my="
 in line [[(zephbranch)]].
 
-What you in ZEPHYR_VERSION is the output of "=git describe --tags=" while I was
-in the "=zephyr/=" directory at the point of time where one of my projects moved
-from EVT to DVT phase. But you can also simply use tag names from the Zephyr
-project.
+BTW, the value of ZEPHYR_VERSION is the output of "=git describe --tags=".
 
-In one of my projects, I have patches that will probably never be accepted by upstream
-Zephyr. I however also don't want to commit them into the "=zephyr/=" project. Instead
-I use the "=quilt=" tool to have a stack of patches. BTW, Debian (and thus Ubuntu) also use
-quilt to patch upstream source packages before making "=.deb=" files, see their
-[[https://wiki.debian.org/UsingQuilt][howto]] on it.
+Background: when should you start to lock Zephyr? This depends on your
+circumstances. When a project is still in EVT phase, I tend to follow Zephyr
+closely, e.g. use development version so it. "=ZEPYHR_VERSION=" would be
+uncommented then. But then the projects enters DVT phase, or even MP phase, I'll
+certainly lock Zephyr to a well-known version.
 
-The existence of quilt patches is checked in line [[(zephpatches)]] and then just
-rolled in in line [[(zephpatches2)]].
+*Local patches*: in one of my projects, I have patches that will probably never
+be accepted by upstream Zephyr. I could put them directly into Zephyr, in my own
+branch ... but I prefer to have them in my own GIT project. So I use the
+"=quilt=" tool to manage a stack of patches.
+
+The existence of quilt patches is checked in line [[(zephpatches)]] and, if they
+exist, line [[(zephpatches2)]] rolls them in.
+
+*Final note*: It's worth mentioning that due to version pinning and local
+patches, we intentionally don't use "=west init=" in this step.
+
 
 *** Install needed Zephyr modules, e.g. HALs from the µC vendor
+
 Some (actually almost all) of the SOCs that Zephyr supports need HALs (hardware
 abstraction layers) provided by the chip vendor. If they don't exist, we cannot
 compile at all. So let's install them!
