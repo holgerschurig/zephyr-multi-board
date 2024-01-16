@@ -83,13 +83,13 @@ Now all is fine, I can start eglot ("=M-x eglot="). All is well!
 
 ... but oh no, even a miniature project already shows an error:
 
-[[./2024-01-05_226x23.png]]
+[[./zephyr-fixing-lsp-issues-error.png]]
 
 Note the "!!" in the left fringe.
 
 But what are these errors?
 
-[[./2024-01-05_733x74.png]]
+[[./zephyr-fixing-lsp-issues-warnings.png]]
 
 It turns out that Zephyr uses some command-line options that the GCC Compiler
 doesn't understand. The CLANG compiler (when compiling) ignores them. But not
