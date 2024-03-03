@@ -26,6 +26,11 @@ This blog post shows how to setup a Zephyr project that you can use for several 
 #+hugo: more
 #+toc: headlines 2
 
+** Changelog
+
+- 2024-03-03 added an ESP32-C3 board
+
+
 ** Why multiple boards in one project?
 
 - You start with a development board (such as STM Nucleo or Disco) while you
