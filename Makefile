@@ -70,44 +70,7 @@ help::
 #
 # Configuration for the various supported boards:
 
-# This creates build/zephyr/zephyr.exe which can be run on your development
-# computer. Good e.g. for unit-tests
-
-.PHONY:: native
-native: .west/config
-	west build \
-		--pristine \
-		-b native_sim \
-		-o "build.ninja" \
-		-- \
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-		-DOVERLAY_CONFIG="native_sim.conf"
-	$(MAKE) --no-print-directory fix_lsp_compilation_database
-	west build
-
-help help_boards::
-	@echo ""
-	@echo "native                configure and compile for native (used for unit-tests)"
-
-
-# This compiles the same source for a board that is fully specified by Zephyr's
-# source code
-
-.PHONY:: nucleo
-nucleo: .west/config
-	west build \
-		--pristine \
-		-b nucleo_f303re \
-		-o "build.ninja" \
-		-- \
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-		-DOVERLAY_CONFIG="nucleo_f303re.conf"
-	$(MAKE) --no-print-directory fix_lsp_compilation_database
-	west build
-
-help help_boards::
-	@echo "nucleo                configure and compile for STM32 Nucleo"
-
+# This compiles for the ESP32-C3 DevKit M board
 
 .PHONY:: esp32c3
 esp32c3: modules/hal/espressif/.git/HEAD
@@ -122,6 +85,7 @@ esp32c3: modules/hal/espressif/.git/HEAD
 	west build
 
 help help_boards::
+	@echo ""
 	@echo "esp32c3               configure and compile for ESP32-C3 DevKit M"
 
 
@@ -144,6 +108,44 @@ local: .west/config
 
 help help_boards::
 	@echo "local                 configure and compile for locally defined board"
+
+
+# This creates build/zephyr/zephyr.exe which can be run on your development
+# computer. Good e.g. for unit-tests
+
+.PHONY:: native
+native: .west/config
+	west build \
+		--pristine \
+		-b native_sim \
+		-o "build.ninja" \
+		-- \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		-DOVERLAY_CONFIG="native_sim.conf"
+	$(MAKE) --no-print-directory fix_lsp_compilation_database
+	west build
+
+help help_boards::
+	@echo "native                configure and compile for native (used for unit-tests)"
+
+
+# This compiles the same source for a board that is fully specified by Zephyr's
+# source code
+
+.PHONY:: nucleo
+nucleo: .west/config
+	west build \
+		--pristine \
+		-b nucleo_f303re \
+		-o "build.ninja" \
+		-- \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		-DOVERLAY_CONFIG="nucleo_f303re.conf"
+	$(MAKE) --no-print-directory fix_lsp_compilation_database
+	west build
+
+help help_boards::
+	@echo "nucleo                configure and compile for STM32 Nucleo"
 
 
 

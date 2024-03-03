@@ -167,24 +167,6 @@ endif
 help::
 	@echo "   modules            install Zeyphr modules (e.g. STM32 and ESP32 HAL, CMSIS ...)"
 
-init:: modules/hal/stm32/.git/HEAD
-.PHONY:: module_stm32
-update modules module_stm32 modules/hal/stm32/.git/HEAD:: .west/config
-	mkdir -p modules
-	west update hal_stm32
-	touch --no-create modules/hal/stm32/.git/HEAD
-help::
-	@echo "     module_stm32     update only STM32 HAL"
-
-init:: modules/hal/st/.git/HEAD
-.PHONY:: module_st
-update modules module_st modules/hal/st/.git/HEAD:: .west/config
-	mkdir -p modules
-	west update hal_st
-	touch --no-create modules/hal/st/.git/HEAD
-help::
-	@echo "     module_st        update only ST HAL"
-
 init:: modules/hal/cmsis/.git/HEAD
 .PHONY:: module_cmsis
 update modules module_cmsis modules/hal/cmsis/.git/HEAD:: .west/config
@@ -202,4 +184,22 @@ update modules module_espressif modules/hal/espressif/.git/HEAD:: .west/config
 	pip3 install pyserial --upgrade
 	touch --no-create modules/hal/espressif/.git/HEAD
 help::
-	@echo "     module_espressif update only ESPRESSIF"
+	@echo "     module_espressif update only ESPRESSIF HAL (ESP-32)"
+
+init:: modules/hal/st/.git/HEAD
+.PHONY:: module_st
+update modules module_st modules/hal/st/.git/HEAD:: .west/config
+	mkdir -p modules
+	west update hal_st
+	touch --no-create modules/hal/st/.git/HEAD
+help::
+	@echo "     module_st        update only ST HAL"
+
+init:: modules/hal/stm32/.git/HEAD
+.PHONY:: module_stm32
+update modules module_stm32 modules/hal/stm32/.git/HEAD:: .west/config
+	mkdir -p modules
+	west update hal_stm32
+	touch --no-create modules/hal/stm32/.git/HEAD
+help::
+	@echo "     module_stm32     update only STM32 HAL"
