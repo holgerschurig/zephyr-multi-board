@@ -165,7 +165,7 @@ endif
 
 .PHONY:: modules
 help::
-	@echo "   modules            install Zeyphr modules (e.g. ST and STM32 HAL, CMSIS ...)"
+	@echo "   modules            install Zeyphr modules (e.g. STM32 and ESP32 HAL, CMSIS ...)"
 
 init:: modules/hal/stm32/.git/HEAD
 .PHONY:: module_stm32
@@ -193,3 +193,13 @@ update modules module_cmsis modules/hal/cmsis/.git/HEAD:: .west/config
 	touch --no-create modules/hal/cmsis/.git/HEAD
 help::
 	@echo "     module_cmsis     update only CMSIS"
+
+init:: modules/hal/espressif/.git/HEAD
+.PHONY:: module_espressif
+update modules module_espressif modules/hal/espressif/.git/HEAD:: .west/config
+	mkdir -p modules
+	west update hal_espressif
+	pip3 install pyserial --upgrade
+	touch --no-create modules/hal/espressif/.git/HEAD
+help::
+	@echo "     module_espressif update only ESPRESSIF"

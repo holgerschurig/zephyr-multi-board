@@ -109,6 +109,22 @@ help help_boards::
 	@echo "nucleo                configure and compile for STM32 Nucleo"
 
 
+.PHONY:: esp32c3
+esp32c3: modules/hal/espressif/.git/HEAD
+	west build \
+		--pristine \
+		-b esp32c3_devkitm \
+		-o "build.ninja" \
+		-- \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		-DOVERLAY_CONFIG="esp32c3_devkitm.conf"
+	$(MAKE) --no-print-directory fix_lsp_compilation_database
+	west build
+
+help help_boards::
+	@echo "esp32c3               configure and compile for ESP32-C3 DevKit M"
+
+
 # This compiles the same source for a board that is locally defined. We call
 # this board "local" for demo's sake. Note that you can have any board
 # definitions below the boards/ directory --- at work I so far have two.
